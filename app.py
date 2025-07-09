@@ -9,22 +9,23 @@ import streamlit as st
 PASSWORD = st.secrets["APP_PASSWORD"]
 
 def login():
-    st.title("🔐 เข้าสู่ระบบ")
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
 
-    # สร้าง layout ให้อยู่กลาง
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown("### กรุณากรอกรหัสผ่าน")
-        password = st.text_input("รหัสผ่าน", type="password", label_visibility="collapsed")
-        if st.button("เข้าสู่ระบบ"):
-            if password == PASSWORD:
-                st.success("เข้าสู่ระบบสำเร็จ ✅")
-                return  # ให้ฟังก์ชันจบและไปต่อด้านล่าง
-            else:
-                st.error("รหัสผ่านไม่ถูกต้อง ❌")
-                st.stop()
-        else:
-            st.stop()  # ยังไม่กดปุ่ม หยุดก่อน
+    if not st.session_state.logged_in:
+        st.title("🔐 เข้าสู่ระบบ")
+
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown("### กรุณากรอกรหัสผ่าน")
+            password = st.text_input("รหัสผ่าน", type="password", label_visibility="collapsed")
+            if st.button("เข้าสู่ระบบ"):
+                if password == PASSWORD:
+                    st.session_state.logged_in = True
+                    st.success("เข้าสู่ระบบสำเร็จ ✅")
+                else:
+                    st.error("รหัสผ่านไม่ถูกต้อง ❌")
+        st.stop()  # หยุดไม่ให้ไปต่อ ถ้ายังไม่ login
 
 login()
 
