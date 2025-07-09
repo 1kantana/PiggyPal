@@ -4,6 +4,24 @@ from datetime import datetime
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+import streamlit as st
+
+PASSWORD = st.secrets["APP_PASSWORD"]
+
+def login():
+    st.sidebar.title("🔒 เข้าสู่ระบบ")
+    password = st.sidebar.text_input("กรอกรหัสผ่าน", type="password")
+    
+    # ถ้ายังไม่กดปุ่ม ให้หยุดการทำงานของแอปไว้ก่อน
+    if not st.sidebar.button("เข้าสู่ระบบ"):
+        st.stop()
+
+    # ตรวจสอบรหัสผ่านหลังจากกดปุ่ม
+    if password != PASSWORD:
+        st.sidebar.warning("รหัสผ่านไม่ถูกต้อง ❌")
+        st.stop()
+
+login()
 
 st.title("บันทึกรายจ่าย Happy 💰😊")
 
