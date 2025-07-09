@@ -22,7 +22,7 @@ def login():
             if st.button("เข้าสู่ระบบ"):
                 if password == PASSWORD:
                     st.session_state.logged_in = True
-                    st.success("เข้าสู่ระบบสำเร็จ ✅")
+                    st.experimental_rerun()  # 👉 รีเฟรชแอปให้แสดงเนื้อหาทันที
                 else:
                     st.error("รหัสผ่านไม่ถูกต้อง ❌")
         st.stop()  # หยุดไม่ให้ไปต่อ ถ้ายังไม่ login
