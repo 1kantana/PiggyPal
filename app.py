@@ -17,9 +17,8 @@ def is_weekend(date_str):
 
 CATEGORY_EMOJI = {
     "meal": "🥑",
-    "shopping": "🛍️",
+    "shopping": "💸",
     "misc": "📦",
-    "snack": "🍪",
     "health": "💊",
 }
 
