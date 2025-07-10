@@ -53,12 +53,14 @@ if st.button("Calculate"):
     st.subheader("Summary Weekday:")
     for category, amt in totals_weekday.items():
         emoji = CATEGORY_EMOJI.get(category, "❓")
-        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}" st.write(f"{emoji} **{category.capitalize()}**: {amt_display}")
+        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}" 
+        st.write(f"{emoji} **{category.capitalize()}**: {amt_display}")
 
     st.subheader("Summary Weekend:")
     for category, amt in totals_weekend.items():
         emoji = CATEGORY_EMOJI.get(category, "❓")
-        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}" st.write(f"{emoji} **{category.capitalize()}**: {amt_display}")
+        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}" 
+        st.write(f"{emoji} **{category.capitalize()}**: {amt_display}")
 
     grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
     display_total = f"{grand_total:.0f}" if grand_total.is_integer() else f"{grand_total:.2f}" st.subheader(f"💵 Grand Total: {display_total}")
