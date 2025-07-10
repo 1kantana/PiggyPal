@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-st.title("บันทึกรายจ่าย Happy 💰😊")
+st.title("Expense Tracker TH")
 
 data = st.text_area("Enter your data (format: '7 Jul: rice-meal 60 coffee-meal 50')", height=200)
 
