@@ -63,7 +63,8 @@ if st.button("Calculate"):
         st.write(f"{emoji} **{category.capitalize()}**: {amt_display}")
 
     grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
-    display_total = f"{grand_total:.0f}" if grand_total.is_integer() else f"{grand_total:.2f}" st.subheader(f"💵 Grand Total: {display_total}")
+    display_total = f"{grand_total:.0f}" if grand_total.is_integer() else f"{grand_total:.2f}" 
+    st.subheader(f"💵 Grand Total: {display_total}")
 
     # 👉 สร้างไฟล์ Excel
     df = pd.DataFrame(all_rows)
