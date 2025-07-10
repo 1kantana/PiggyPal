@@ -16,7 +16,7 @@ def is_weekend(date_str):
     return dt.weekday() >= 5
 
 CATEGORY_EMOJI = {
-    "meal": "🍚",
+    "meal": "🥓",
     "shopping": "🛍️",
     "misc": "📦",
     "snack": "🍪",
