@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-st.title("Expense Tracker TH 💸")
+st.title("Expense Tracker TH 🛍️")
 
 data = st.text_area("Enter your data (format: '7 Jul: rice-meal 60 coffee-meal 50')", height=200)
 
@@ -16,10 +16,9 @@ def is_weekend(date_str):
     return dt.weekday() >= 5
 
 CATEGORY_EMOJI = {
-    "meal": "🥑",
-    "shopping": "💸",
+    "meal": "🍚",
+    "shopping": "🛍️",
     "misc": "📦",
-    "health": "💊",
 }
 
 # 👇 วางโค้ดใหม่ตรงนี้ แทน if st.button("Calculate") เดิมทั้งหมด
