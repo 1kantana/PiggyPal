@@ -7,7 +7,7 @@ from io import BytesIO
 
 st.title("Expense Tracker TH ")
 
-data = st.text_area("Enter your data (format: '7 Jul: rice-food 60 coffee-food 50')", height=200)
+data = st.text_area("Enter your data (format: '7 Jul: rice-food 60 coffee-drink 50')", height=200)
 
 YEAR = 2025
 
@@ -82,4 +82,5 @@ if st.button("Calculate"):
         file_name="expenses_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
