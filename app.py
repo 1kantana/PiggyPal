@@ -15,8 +15,14 @@ def is_weekend(date_str):
     dt = datetime.strptime(f"{date_str} {YEAR}", "%d %b %Y")
     return dt.weekday() >= 5
 
-# ❌ ลบ CATEGORY_EMOJI ออก
+CATEGORY_EMOJI = {
+    "food": "🥑",
+    "shopping": "📦",
+    "misc": "📦",
+    "health": "💊",
+}
 
+# 👇 วางโค้ดใหม่ตรงนี้ แทน if st.button("Calculate") เดิมทั้งหมด
 if st.button("Calculate"):
     totals_weekday = defaultdict(float)
     totals_weekend = defaultdict(float)
@@ -43,20 +49,21 @@ if st.button("Calculate"):
                 "Type": day_type
             })
 
-    st.subheader("Weekday")
+    # 👉 แสดงผลรวมบนหน้าจอ
+    st.subheader("Summary Weekday:")
     for category, amt in totals_weekday.items():
-        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}"
-        st.write(f"**{category.capitalize()}**: {amt_display}")
+        emoji = CATEGORY_EMOJI.get(category, "❓")
+        st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
-    st.subheader("Weekend")
+    st.subheader("Summary Weekend:")
     for category, amt in totals_weekend.items():
-        amt_display = f"{amt:.0f}" if amt.is_integer() else f"{amt:.2f}"
-        st.write(f"**{category.capitalize()}**: {amt_display}")
+        emoji = CATEGORY_EMOJI.get(category, "❓")
+        st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
     grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
-    display_total = f"{grand_total:.0f}" if grand_total.is_integer() else f"{grand_total:.2f}"
-    st.subheader(f"Grand Total: {display_total}")
+    st.subheader(f"💵 Grand Total: {round(grand_total, 2)}")
 
+    # 👉 สร้างไฟล์ Excel
     df = pd.DataFrame(all_rows)
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -68,6 +75,7 @@ if st.button("Calculate"):
         summary_df.to_excel(writer, index=False, sheet_name='Summary')
     output.seek(0)
 
+    # 👉 ปุ่มดาวน์โหลด
     st.download_button(
         label="📥 Download Excel",
         data=output,
