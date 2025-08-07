@@ -16,9 +16,9 @@ def is_weekend(date_str):
     return dt.weekday() >= 5
 
 CATEGORY_EMOJI = {
-    "food": "",
+    "food": "🥩",
     "drink": "🥤",
-    "shopping": "",
+    "shopping": "💰",
     "misc": "📦",
     "health": "💊",
 }
@@ -87,6 +87,7 @@ if st.button("Calculate"):
         file_name="expenses_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
 
