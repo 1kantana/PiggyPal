@@ -8,7 +8,7 @@ from io import BytesIO
 st.title("Expense Tracker TH")
 
 data = st.text_area(
-    "Enter your data (format: '7 Jul: rice 60 coffee 50 notebook-shopping 100')", height=200
+    "Enter your data (format: '7 Jul: rice-meal 60 coffee-drink 50 notebook-shop 100')", height=200
 )
 
 YEAR = 2025
@@ -35,30 +35,15 @@ if st.button("Calculate"):
         weekend = is_weekend(date_part)
         day_type = "Weekend" if weekend else "Weekday"
 
-        # แยก items โดยใช้ comma หรือ space เป็นตัวคั่น
+        # จับ items
         items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', items_part)
-
-        # ตรวจสอบว่ามีอาหารในบรรทัดหรือไม่
-        has_food = any(cat in [None, "food"] or (cat=="drink" and "coffee|tea|milk".search(item.lower())) for item, cat, amt in items)
 
         for item, category, amount in items:
             amount = float(amount)
 
-            # --- กำหนด category อัตโนมัติ ---
+            # ถ้าไม่ระบุ category → ใช้ misc
             if not category:
                 category = "misc"
-
-            # ถ้า item เป็นอาหารหรือมีน้ำมาพร้อมอาหาร → meal
-            if category in [None, "food"]:
-                category = "meal"
-            elif category == "shopping":
-                category = "shop"
-            elif category == "drink":
-                # น้ำสั่งแยก ถ้าในบรรทัดไม่มีอาหาร → drink
-                if has_food:
-                    category = "meal"
-                else:
-                    category = "drink"
 
             # รวมยอดตามวัน
             if weekend:
@@ -66,6 +51,7 @@ if st.button("Calculate"):
             else:
                 totals_weekday[category] += amount
 
+            # เก็บ row สำหรับ Excel
             all_rows.append({
                 "Date": f"{date_part} {YEAR}",
                 "Item": item,
