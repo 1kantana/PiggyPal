@@ -8,7 +8,7 @@ from io import BytesIO
 st.title("Expense Tracker TH")
 
 data = st.text_area(
-    "Enter your data (format: '7 Jul: rice-meal 60 coffee-drink 50 notebook-shop 100')", height=200
+    "Enter your data (format: '7 Jul: rice-food 60 coffee-drink 50 notebook-shop 100')", height=200
 )
 
 YEAR = 2025
@@ -44,6 +44,10 @@ if st.button("Calculate"):
             # ถ้าไม่ระบุ category → ใช้ misc
             if not category:
                 category = "misc"
+
+            # ถ้าเจอ food → แปลงเป็น meal
+            if category == "food":
+                category = "meal"
 
             # รวมยอดตามวัน
             if weekend:
