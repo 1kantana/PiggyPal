@@ -5,9 +5,11 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-st.title("Expense Tracker TH ")
+st.title("Expense Tracker TH")
 
-data = st.text_area("Enter your data (format: '7 Jul: rice-food 60 coffee-drink 50')", height=200)
+data = st.text_area(
+    "Enter your data (format: '7 Jul: rice 60 coffee 50 notebook-shopping 100')", height=200
+)
 
 YEAR = 2025
 
@@ -16,14 +18,12 @@ def is_weekend(date_str):
     return dt.weekday() >= 5
 
 CATEGORY_EMOJI = {
-    "food": "🧃",
-    "drink": "🥤",
-    "shopping": "🧾",
+    "meal": "🥞",
+    "drink": "🧋",
+    "shop": "💵",
     "misc": "📦",
-    "health": "💉",
 }
 
-# 👇 วางโค้ดใหม่ตรงนี้ แทน if st.button("Calculate") เดิมทั้งหมด
 if st.button("Calculate"):
     totals_weekday = defaultdict(float)
     totals_weekend = defaultdict(float)
@@ -31,28 +31,36 @@ if st.button("Calculate"):
 
     for line in data.strip().split('\n'):
         date_part = line.split(':')[0].strip()
+        items_part = line.split(':', 1)[1] if ':' in line else ''
         weekend = is_weekend(date_part)
         day_type = "Weekend" if weekend else "Weekday"
 
-        # จับ item, category, amount
-        items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', line)
+        # แยก items โดยใช้ comma หรือ space เป็นตัวคั่น
+        items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', items_part)
+
+        # ตรวจสอบว่ามีอาหารในบรรทัดหรือไม่
+        has_food = any(cat in [None, "food"] or (cat=="drink" and "coffee|tea|milk".search(item.lower())) for item, cat, amt in items)
+
         for item, category, amount in items:
             amount = float(amount)
 
-            # --- จัดหมวดหมู่ใหม่ ---
+            # --- กำหนด category อัตโนมัติ ---
             if not category:
                 category = "misc"
-            elif category == "food":
+
+            # ถ้า item เป็นอาหารหรือมีน้ำมาพร้อมอาหาร → meal
+            if category in [None, "food"]:
                 category = "meal"
             elif category == "shopping":
                 category = "shop"
             elif category == "drink":
-                # น้ำอย่างเดียว → drink
-                # แต่ถ้าคุณอยากให้ detect "อาหาร+น้ำ" เป็น meal อัตโนมัติ
-                # อาจเพิ่ม logic เช็ค item name ได้ภายหลัง
-                category = "drink"
+                # น้ำสั่งแยก ถ้าในบรรทัดไม่มีอาหาร → drink
+                if has_food:
+                    category = "meal"
+                else:
+                    category = "drink"
 
-            # --- รวมยอดตามวัน ---
+            # รวมยอดตามวัน
             if weekend:
                 totals_weekend[category] += amount
             else:
@@ -66,33 +74,25 @@ if st.button("Calculate"):
                 "Type": day_type
             })
 
-    # --- อัปเดต emoji ใหม่ ---
-    CATEGORY_EMOJI = {
-        "meal": "🧃",
-        "drink": "🧃",
-        "shop": "💵",
-        "misc": "📦",
-    }
-
-    # 👉 แสดงผลรวมบนหน้าจอ
+    # แสดงผลสรุป
     st.subheader("Summary Weekday:")
     for category in CATEGORY_EMOJI.keys():
         amt = totals_weekday.get(category, 0)
         if amt:
-            emoji = CATEGORY_EMOJI.get(category, "❓")
+            emoji = CATEGORY_EMOJI[category]
             st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
     st.subheader("Summary Weekend:")
     for category in CATEGORY_EMOJI.keys():
         amt = totals_weekend.get(category, 0)
         if amt:
-            emoji = CATEGORY_EMOJI.get(category, "❓")
+            emoji = CATEGORY_EMOJI[category]
             st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
     grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
     st.subheader(f"💵 Grand Total: {round(grand_total, 2)}")
 
-    # 👉 สร้างไฟล์ Excel
+    # สร้าง Excel
     df = pd.DataFrame(all_rows)
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -104,21 +104,9 @@ if st.button("Calculate"):
         summary_df.to_excel(writer, index=False, sheet_name='Summary')
     output.seek(0)
 
-    # 👉 ปุ่มดาวน์โหลด
     st.download_button(
         label="📥 Download Excel",
         data=output,
         file_name="expenses_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
-
-
-
-
-
-
-
-
-
-
