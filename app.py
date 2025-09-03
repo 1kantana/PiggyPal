@@ -33,15 +33,31 @@ if st.button("Calculate"):
         date_part = line.split(':')[0].strip()
         weekend = is_weekend(date_part)
         day_type = "Weekend" if weekend else "Weekday"
+
+        # จับ item, category, amount
         items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', line)
         for item, category, amount in items:
             amount = float(amount)
+
+            # --- จัดหมวดหมู่ใหม่ ---
             if not category:
                 category = "misc"
+            elif category == "food":
+                category = "meal"
+            elif category == "shopping":
+                category = "shop"
+            elif category == "drink":
+                # น้ำอย่างเดียว → drink
+                # แต่ถ้าคุณอยากให้ detect "อาหาร+น้ำ" เป็น meal อัตโนมัติ
+                # อาจเพิ่ม logic เช็ค item name ได้ภายหลัง
+                category = "drink"
+
+            # --- รวมยอดตามวัน ---
             if weekend:
                 totals_weekend[category] += amount
             else:
                 totals_weekday[category] += amount
+
             all_rows.append({
                 "Date": f"{date_part} {YEAR}",
                 "Item": item,
@@ -49,6 +65,14 @@ if st.button("Calculate"):
                 "Amount": amount,
                 "Type": day_type
             })
+
+    # --- อัปเดต emoji ใหม่ ---
+    CATEGORY_EMOJI = {
+        "meal": "🧃",
+        "drink": "🧃",
+        "shop": "💵",
+        "misc": "📦",
+    }
 
     # 👉 แสดงผลรวมบนหน้าจอ
     st.subheader("Summary Weekday:")
