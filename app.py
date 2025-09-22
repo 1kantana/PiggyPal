@@ -28,7 +28,7 @@ data = st.text_area(
 )
 
 # แสดง caption แนะนำ format
-st.caption("รูปแบบตัวอย่าง: `7 Jul: rice-meal 60 coffee-drink 50 notebook-shop 100`")
+st.caption("รูปแบบตัวอย่าง: `7 Jul: rice-meal 60 tea-drink 50 skincare-shop 100`")
 
 if st.button("Calculate"):
     if not data.strip():
@@ -107,3 +107,4 @@ if st.button("Calculate"):
             file_name="expenses_report.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
