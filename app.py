@@ -20,83 +20,90 @@ CATEGORY_EMOJI = {
     "misc": "📦",
 }
 
-# ช่องใส่ข้อมูลเปล่า + tooltip แนะนำ format
+# ช่องใส่ข้อมูลเปล่า
 data = st.text_area(
     "Enter your data:", 
     value="",
     height=200,
-    help="รูปแบบ: '7 Jul: rice-meal 60 tea-drink 50 skincare-shop 100'"
 )
 
+# แสดง caption แนะนำ format
+st.caption("รูปแบบตัวอย่าง: `7 Jul: rice-meal 60 coffee-drink 50 notebook-shop 100`")
+
 if st.button("Calculate"):
-    totals_weekday = defaultdict(float)
-    totals_weekend = defaultdict(float)
-    all_rows = []
+    if not data.strip():
+        st.warning("โปรดกรอกข้อมูลก่อนคำนวณ")
+    else:
+        totals_weekday = defaultdict(float)
+        totals_weekend = defaultdict(float)
+        all_rows = []
 
-    for line in data.strip().split('\n'):
-        date_part = line.split(':')[0].strip()
-        items_part = line.split(':', 1)[1] if ':' in line else ''
-        weekend = is_weekend(date_part)
-        day_type = "Weekend" if weekend else "Weekday"
+        for line in data.strip().split('\n'):
+            date_part = line.split(':')[0].strip()
+            items_part = line.split(':', 1)[1] if ':' in line else ''
+            weekend = is_weekend(date_part)
+            day_type = "Weekend" if weekend else "Weekday"
 
-        # จับ items
-        items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', items_part)
+            # จับ items
+            items = re.findall(r'(\S+?)(?:-(\w+))?\s+(\d+(?:\.\d+)?)', items_part)
 
-        for item, category, amount in items:
-            amount = float(amount)
+            for item, category, amount in items:
+                amount = float(amount)
 
-            if not category:
-                category = "misc"
+                if not category:
+                    category = "misc"
 
-            if category == "food":
-                category = "meal"
-            elif category == "shopping":
-                category = "shop"
+                if category == "food":
+                    category = "meal"
+                elif category == "shopping":
+                    category = "shop"
 
-            if weekend:
-                totals_weekend[category] += amount
-            else:
-                totals_weekday[category] += amount
+                if weekend:
+                    totals_weekend[category] += amount
+                else:
+                    totals_weekday[category] += amount
 
-            all_rows.append({
-                "Date": f"{date_part} {YEAR}",
-                "Item": item,
-                "Category": category,
-                "Amount": amount,
-                "Type": day_type
-            })
+                all_rows.append({
+                    "Date": f"{date_part} {YEAR}",
+                    "Item": item,
+                    "Category": category,
+                    "Amount": amount,
+                    "Type": day_type
+                })
 
-    st.subheader("Summary Weekday:")
-    for category in CATEGORY_EMOJI.keys():
-        amt = totals_weekday.get(category, 0)
-        if amt:
-            emoji = CATEGORY_EMOJI[category]
-            st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
+        # แสดงผลสรุป
+        st.subheader("Summary Weekday:")
+        for category in CATEGORY_EMOJI.keys():
+            amt = totals_weekday.get(category, 0)
+            if amt:
+                emoji = CATEGORY_EMOJI[category]
+                st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
-    st.subheader("Summary Weekend:")
-    for category in CATEGORY_EMOJI.keys():
-        amt = totals_weekend.get(category, 0)
-        if amt:
-            emoji = CATEGORY_EMOJI[category]
-            st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
+        st.subheader("Summary Weekend:")
+        for category in CATEGORY_EMOJI.keys():
+            amt = totals_weekend.get(category, 0)
+            if amt:
+                emoji = CATEGORY_EMOJI[category]
+                st.write(f"{emoji} **{category.capitalize()}**: {round(amt, 2)}")
 
-    grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
-    st.subheader(f"💵 Grand Total: {round(grand_total, 2)}")
+        grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
+        st.subheader(f"💵 Grand Total: {round(grand_total, 2)}")
 
-    df = pd.DataFrame(all_rows)
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Expenses')
-        summary_df = pd.concat([
-            pd.DataFrame(totals_weekday.items(), columns=['Category', 'Weekday Total']),
-            pd.DataFrame(totals_weekend.items(), columns=['Category', 'Weekend Total'])
-        ], axis=1)
-        summary_df.to_excel(writer, index=False, sheet_name='Summary')
-    output.seek(0)
+        # สร้าง Excel
+        df = pd.DataFrame(all_rows)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Expenses')
+            summary_df = pd.concat([
+                pd.DataFrame(totals_weekday.items(), columns=['Category', 'Weekday Total']),
+                pd.DataFrame(totals_weekend.items(), columns=['Category', 'Weekend Total'])
+            ], axis=1)
+            summary_df.to_excel(writer, index=False, sheet_name='Summary')
+        output.seek(0)
 
-    st.download_button(
-        label="📥 Download Excel",
-        data=output,
-        file_name="expenses_report.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+        st.download_button(
+            label="📥 Download Excel",
+            data=output,
+            file_name="expenses_report.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
