@@ -27,8 +27,11 @@ data = st.text_area(
     height=200,
 )
 
-# แสดง caption แนะนำ format
-st.caption("รูปแบบตัวอย่าง: `7 Jul: rice-meal 60 tea-drink 50 skincare-shop 100`")
+# แสดงตัวอย่างแบบใหญ่ขึ้น
+st.markdown(
+    "<p style='font-size:18px; color:gray;'><b>รูปแบบตัวอย่าง:</b> 7 Jul: rice-meal 60 tea-drink 50 skincare-shop 100</p>",
+    unsafe_allow_html=True
+)
 
 if st.button("Calculate"):
     if not data.strip():
@@ -107,4 +110,5 @@ if st.button("Calculate"):
             file_name="expenses_report.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
