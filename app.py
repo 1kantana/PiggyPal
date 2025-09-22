@@ -7,11 +7,6 @@ from io import BytesIO
 
 st.title("Expense Tracker TH")
 
-# แสดงตัวอย่าง input ใหม่
-data = st.text_area(
-    "Enter your data (format: '7 Jul: rice-meal 60 coffee-drink 50 notebook-shop 100')", height=200
-)
-
 YEAR = 2025
 
 def is_weekend(date_str):
@@ -24,6 +19,14 @@ CATEGORY_EMOJI = {
     "shop": "💵",
     "misc": "📦",
 }
+
+# ช่องใส่ข้อมูลเปล่า + tooltip แนะนำ format
+data = st.text_area(
+    "Enter your data:", 
+    value="",
+    height=200,
+    help="รูปแบบ: '7 Jul: rice-meal 60 tea-drink 50 skincare-shop 100'"
+)
 
 if st.button("Calculate"):
     totals_weekday = defaultdict(float)
@@ -42,23 +45,19 @@ if st.button("Calculate"):
         for item, category, amount in items:
             amount = float(amount)
 
-            # ถ้าไม่ระบุ category → ใช้ misc
             if not category:
                 category = "misc"
 
-            # แปลง category ตามคำพิเศษ
             if category == "food":
                 category = "meal"
             elif category == "shopping":
                 category = "shop"
 
-            # รวมยอดตามวัน
             if weekend:
                 totals_weekend[category] += amount
             else:
                 totals_weekday[category] += amount
 
-            # เก็บ row สำหรับ Excel
             all_rows.append({
                 "Date": f"{date_part} {YEAR}",
                 "Item": item,
@@ -67,7 +66,6 @@ if st.button("Calculate"):
                 "Type": day_type
             })
 
-    # แสดงผลสรุป
     st.subheader("Summary Weekday:")
     for category in CATEGORY_EMOJI.keys():
         amt = totals_weekday.get(category, 0)
@@ -85,7 +83,6 @@ if st.button("Calculate"):
     grand_total = sum(totals_weekday.values()) + sum(totals_weekend.values())
     st.subheader(f"💵 Grand Total: {round(grand_total, 2)}")
 
-    # สร้าง Excel
     df = pd.DataFrame(all_rows)
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -103,6 +100,3 @@ if st.button("Calculate"):
         file_name="expenses_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
-
-
