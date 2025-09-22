@@ -24,7 +24,7 @@ CATEGORY_EMOJI = {
 data = st.text_area(
     "Enter your data:", 
     value="",
-    height=250,
+    height=200,
 )
 
 # แสดง caption แนะนำ format
@@ -107,4 +107,5 @@ if st.button("Calculate"):
             file_name="expenses_report.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
